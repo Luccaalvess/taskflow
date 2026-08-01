@@ -16,10 +16,18 @@ router.get('/projects/:id', (req, res) => {
 
     const project = projects.find(project => project.id === id);
 
+    if(!project){
+        return res.status(404).json({message: "Projeto não encontrado"});
+    }
+
     res.status(200).json(project);
 })
 
 router.post('/projects', (req, res) => {
+    
+    if(!req.body.nome || !req.body.descricao){
+        return res.status(400).json({message: "Nome e descrição são obrigatórios"})
+    }
 
     const project = {
         ...req.body,
@@ -37,17 +45,23 @@ router.put('/projects/:id', (req, res) => {
 
     const id = Number(req.params.id);
 
+    const project = projects.find(project => project.id === id);
+
+    if(!project){
+        return res.status(404).json({message: "Projeto não encontrado"})
+    }
+
+    const updatedProject = {
+        ...project,
+        ...req.body
+    }
+
+    if(!updatedProject.nome || !updatedProject.descricao){
+        return res.status(400).json({message: "Nome e descrição são obrigatórios"});
+    }
+
     projects = projects.map(project => {
-        if (project.id === id) {
-            project = {
-                ...project,
-                ...req.body,
-                // nome: req.body.nome,
-                // descricao: req.body.descricao
-            }
-            return project
-        }
-        return project
+        return project.id === id ? updatedProject : project;
     })
 
     res.status(200).json({ message: 'Projeto atualizado com sucesso' })
@@ -57,10 +71,16 @@ router.delete('/projects/:id', (req, res) => {
 
     const id = Number(req.params.id);
 
+    const projectExists = projects.some(project => project.id === id);
+    
+    if(!projectExists){
+        return res.status(404).json({message: "Projeto não encontrado"});
+    }
+    
     projects = projects.filter(project => project.id !== id);
 
     res.status(200).json({ message: 'Projeto deletado com sucesso' });
-})
+});
 
 
 export { router };
