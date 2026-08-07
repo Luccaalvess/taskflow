@@ -1,13 +1,16 @@
 import express from "express";
+import { prisma } from "../lib/prisma.js";
 
 const router = express.Router();
 
 let projects = []
 let nextId = 1;
 
-router.get('/projects', (req, res) => {
+router.get('/projects', async (req, res) => {
 
-    res.status(200).json(projects)
+    const projects = await prisma.projects.findMany(); 
+
+    res.status(200).json(projects);
 });
 
 router.get('/projects/:id', (req, res) => {
